@@ -42,7 +42,7 @@ void EcrireFichier(FILE * destination, int * num_ligne, char mot1[], char mot2[]
 
 
 // assigne une ligne du fichier d'instructions à des mots séparés + renvoie le nombre de mots non étiquette
-int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette, char * non_etiquette, char * mot1, char * mot2, Etiquette tableau_etiquettes[], int * nb_etiquettes, int * erreur) {
+int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette, char * non_etiquette, char * mot1, char * mot2, Etiquette tableau_etiquettes[], int * nb_etiquettes, Erreur* erreur) {
     // sépare la ligne en 50 caractères max avant et 50 max après ':' non_etiquette est vide s'il n'y a pas d'étiquette dans la ligne
     int n = sscanf(chaine, "%49[^:]:%49[^\n]", possible_etiquette, non_etiquette); 
     int nbmots = 0;
@@ -52,17 +52,24 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
         printf("mot1 :%s mot2 :%s\n", mot1, mot2);
     }
     if (n==2) {
+        if (possible_etiquette[0]=='\0') {
+            erreur->statut = 1;
+            strcpy(erreur->msg_erreur, "erreur de syntaxe : étiquette vide");
+            return -1;
+        }
         printf("étiquette :%s\n", possible_etiquette);
         // on re divise le mot en étiquette vs non étiquette
         nbmots = sscanf(non_etiquette, " %49s %49s", mot1, mot2);
         printf("mot1 :%s mot2 :%s\n", mot1, mot2);
     }
     if (n==0) {
-        printf("erreur de syntaxe à la ligne %d : ligne vide ou format incorrect\n", *num_ligne);
+        erreur->statut=1;
+        strcpy(erreur->msg_erreur, "erreur de syntaxe : ligne vide ou format incorrect");
         return -1;
     }
     if (ContientEspace(mot2)) {
-        printf("erreur de syntaxe à la ligne %d : on ne peut pas avoir plus de 2 mots pour une instruction\n", *num_ligne);
+        erreur->statut = 1;
+        strcpy(erreur->msg_erreur, "erreur de syntaxe : on ne peut pas avoir plus de 2 mots pour une instruction");
         return -1;
         
     }

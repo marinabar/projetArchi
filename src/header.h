@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <assert.h>
 
 #define HEADER_H
 #define MAX_NB_INSTRUCTION 500
@@ -29,12 +30,8 @@ typedef struct {
     char msg_erreur[100];
 } Erreur;
 
-// table de toutes les instructions possibles
-const char TableInstructions[][15] = {
-        "pop", "ipop", "push", "ipush", "push#", 
-        "jmp", "jnz", "call", "ret", "read", 
-        "write", "op", "rnd", "dup", "halt"
-};
+
+extern const int TableInstructions[];
 
 // prototypes des fonctions sur les opérations dans les instructions
 int ObtenirCodeOperation(char chaine[]);
@@ -49,6 +46,8 @@ int EstNombre(const char chaine[], Erreur * erreur);
 // prototypes des fonctions pour la gestion des étiquettes
 unsigned int TrouverAdresse(const char nom_etiquette[], const Etiquette tableau_etiquettes[], const int nb_etiquettes, Erreur * erreur);
 void RemplirTableauEtiq(FILE * source, Etiquette tableau_etiquettes[], int *nb_etiquettes, Erreur * erreur);
+void AjoutEtiquette(Etiquette tableau_etiquettes[], char nom_etiquette[], int * nb_etiquettes, const unsigned int * adresse, Erreur * erreur);
+void EtiquetteNonValide(const char chaine[], Erreur * erreur);
 
 //prototype des fonctions des deux programmes principaux
 int Conversion(int argc, char *argv[], Erreur *erreur);

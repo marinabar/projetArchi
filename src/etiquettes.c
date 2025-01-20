@@ -36,10 +36,20 @@ unsigned int TrouverAdresse(const char nom_etiquette[], const Etiquette tableau_
 }
 
 // vérifie si l'étiquette est dans le bon format
-int EtiquetteNonValide(const char chaine[], Erreur * erreur){
-    // ne commence pas par un chiffre contient seulement des caractères dans un certain intervalle ASCII, pas d'espace, pas de caractères spéciaux
-
-    return 0;
+void EtiquetteNonValide(const char chaine[], Erreur * erreur){
+    // ne commence pas par un chiffre ou un underscore, ne contient pas d'espace, pas vide
+    if ((chaine[0] >= '0' && chaine[0] <= '9') || ContientEspace(chaine) || chaine[0] == '\0' || chaine[0] == '_') {
+        erreur->statut = 1;
+        return;
+    }
+    for (int i = 0; i < strlen(chaine); i++) {
+        // vérifie si le caractère est bien une lettre, un chiffre ou un tiret du bas
+        if (!((chaine[i] >= 'a' && chaine[i] <= 'z') || (chaine[i] >= 'A' && chaine[i] <= 'Z') || (chaine[i] >= '0' && chaine[i] <= '9') || chaine[i] == '_')) {
+            erreur->statut = 1;
+            return;
+        }
+    }
+    return;
 }
 
 // ajoute une entrée au tableau avec toutes les étiquettes
@@ -77,7 +87,7 @@ void RemplirTableauEtiq(FILE * source, Etiquette tableau_etiquettes[], int *nb_e
             // vérifie si l'étiquette est valide
             EtiquetteNonValide(possible_etiquette, erreur);
             if (erreur->statut==1) {
-                sprintf(erreur->msg_erreur, "erreur de syntaxe pour l'étiquette à la ligne %d", possible_etiquette);
+                sprintf(erreur->msg_erreur, "erreur de syntaxe pour l'étiquette à la ligne %d", num_ligne);
                 return;
             }
             // ajoute l'étiquette au tableau des étiquettes, l'adresse est l'adresse relative du fichier d'instructions

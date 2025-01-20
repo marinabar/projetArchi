@@ -1,5 +1,12 @@
 #include "header.h"
 
+// table de toutes les instructions possibles
+const char TableInstructions[][15] = {
+        "pop", "ipop", "push", "ipush", "push#", 
+        "jmp", "jnz", "call", "ret", "read", 
+        "write", "op", "rnd", "dup", "halt"
+};
+
 
 int ObtenirCodeOperation(char chaine[]) {
     // obtenir le code d'opération à partir du nom de l'instruction

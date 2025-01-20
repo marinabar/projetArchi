@@ -7,8 +7,8 @@ void VerifFichierEntree(int argc, char *argv[], Erreur *erreur) {
         strcpy(erreur->msg_erreur, "assurez-vous d'avoir entré exactement un nom de fichier\n");
         return;
     }
-    char *test = strstr(argv[1], ".txt");
-    if (strstr(test, ".txt") == NULL) {
+    char *verif = strstr(argv[1], ".txt");
+    if (verif == NULL) {
         erreur->statut = 1;
         strcpy(erreur->msg_erreur, "assurez-vous d'avoir entré un nom de fichier se terminant par .txt\n");
         return;
@@ -20,7 +20,7 @@ void VerifFichierEntree(int argc, char *argv[], Erreur *erreur) {
 int ContientEspace(const char chaine[]) {
     // vérifie si la chaîne contient un espace
     while (*chaine !='\0') {
-        if (*chaine ==' ') return 1;
+        if (*chaine ==' ' || *chaine == '\t' || *chaine == '\r' || *chaine == '\n') return 1;
         chaine++; // incrémente le pointeur pour montrer le caractère suivant
     }
     return 0;
@@ -62,7 +62,7 @@ int EstNombre(const char chaine[], Erreur * erreur) {
     if (!(chaine[0] >= '0' && chaine[0] <= '9') && chaine[0] != '-') {
         return 0;
     }
-     // le reste peut être des lettres des chiffres un underscore
+     // le reste peut être chiffres uniquement
     for (int i = 1; chaine[i]; i++) {
         if (!(chaine[i] >= '0' && chaine[i] <= '9')) return 0;
     }
