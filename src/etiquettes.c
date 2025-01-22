@@ -83,7 +83,6 @@ void RemplirTableauEtiq(FILE * source, Etiquette tableau_etiquettes[], int *nb_e
         // 49 correspond à la longueur max de l'instruction
         int n = sscanf(ligne, "%49[^:]:%49[^\n]", possible_etiquette, autre);
         if (n==2) {
-            printf("étiquette :%s\n", possible_etiquette);
             // vérifie si l'étiquette est valide
             EtiquetteNonValide(possible_etiquette, erreur);
             if (erreur->statut==1) {

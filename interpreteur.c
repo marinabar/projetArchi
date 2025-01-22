@@ -9,7 +9,7 @@ int memoire[TAILLE_MEMOIRE];
 int pile[TAILLE_PILE];
 short programme[TAILLE_PROGRAMME][2];  //on est en short, ca nous facilite la vie pour les étiquettes, la conversion est faite automatiquemeznt lorsqu'il faut remonter le programme
 
-void operations();
+void operations(int op);
 
 void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau programme, et on le convertit (hexa->int)
 {
@@ -140,11 +140,11 @@ void instructions(){
             SP--;
             break;
         case(9): //read x
-            int k_case9;
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
                 printf("Erreur d'indice\n");
                 exit(EXIT_FAILURE);
             }
+            int k_case9;
             printf("Entrez une valeur pour l'adresse %d\n", donnee);
             scanf("%d", &k_case9); //petit entier
             memoire[donnee]=k_case9;
@@ -318,7 +318,7 @@ void operations(int op){
 
 int Simulateur(){
     
-    remplirTableau("testProgrammeSimulateur.txt");
+    remplirTableau("hexa.txt");
     afficheTableau(programme);
     if (*nbLignes>=TAILLE_PROGRAMME){
         printf("Programme trop long, il doit faire au maximum %d lignes\n", TAILLE_PROGRAMME);

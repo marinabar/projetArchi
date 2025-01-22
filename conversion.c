@@ -20,7 +20,6 @@ void EcrireFichier(FILE * destination, int * num_ligne, char mot1[], char mot2[]
 
     // convertit le premier mot en instruction le deuxième mot en valeur
     printf("conversion de l'instruction %s et %s à la ligne %d\n", mot1, mot2, *num_ligne);
-    printf("contient %d mots\n", *nb_mots);
 
     int opcode = ObtenirCodeOperation(mot1);
     // en cas de mauvais numéro d'opération entré
@@ -47,9 +46,7 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
     int n = sscanf(chaine, "%49[^:]:%49[^\n]", possible_etiquette, non_etiquette); 
     int nbmots = 0;
     if (n==1) {
-        printf("pas d'étiquette:%s\n", possible_etiquette);
         nbmots = sscanf(possible_etiquette, " %49s %49s", mot1, mot2);
-        printf("mot1 :%s mot2 :%s\n", mot1, mot2);
     }
     if (n==2) {
         if (possible_etiquette[0]=='\0') {
@@ -57,10 +54,9 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
             strcpy(erreur->msg_erreur, "erreur de syntaxe : étiquette vide");
             return -1;
         }
-        printf("étiquette :%s\n", possible_etiquette);
+        printf("étiquette :%s détectée à la ligne %d\n", possible_etiquette, *num_ligne);
         // on re divise le mot en étiquette vs non étiquette
         nbmots = sscanf(non_etiquette, " %49s %49s", mot1, mot2);
-        printf("mot1 :%s mot2 :%s\n", mot1, mot2);
     }
     if (n==0) {
         erreur->statut=1;
@@ -133,7 +129,6 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
         nb_mots = SeparerLigne(&num_ligne, ligne, possible_etiquette, non_etiquette, mot1, mot2, tableau_etiquettes, &nb_etiquettes, erreur);
         if (erreur->statut) {
             printf("Erreur de lecture de la ligne %d\n", num_ligne);
-            printf("%s\n", erreur->msg_erreur);
             break;
         }
 
@@ -142,7 +137,6 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
 
         if (erreur->statut) {
             printf("Erreur d'écriture du fichier\n");
-            printf("%s\n", erreur->msg_erreur);
             break;
         }
 

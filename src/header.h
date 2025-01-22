@@ -31,7 +31,7 @@ typedef struct {
 } Erreur;
 
 
-extern const int TableInstructions[];
+extern const char TableInstructions[][15];
 
 // prototypes des fonctions sur les opérations dans les instructions
 int ObtenirCodeOperation(char chaine[]);
