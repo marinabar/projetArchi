@@ -1,17 +1,18 @@
 #include "src/header.h"
 
+
+//on a donc le droit à 1000 lignes de code. (1000 adresses pour le premier élément du tableau, les 1000 autres pour le deuxième)
+//choisi arbitrairement en supposant que ca ne comptait pas dans les 5000 adresses totales
+
 int PC=0; //prochaine instruction a executer
 int SP=0;
 int nbLignesVariable=0;
 int* nbLignes=&nbLignesVariable;
 
-int memoire[TAILLE_MEMOIRE];
-int pile[TAILLE_PILE];
-short programme[TAILLE_PROGRAMME][2];  //on est en short, ca nous facilite la vie pour les étiquettes, la conversion est faite automatiquemeznt lorsqu'il faut remonter le programme
+short memoire[TAILLE_MEMOIRE]; 
+short programme[TAILLE_PROGRAMME][2];  //on est en short, ca nous facilite la vie pour les étiquettes, la conversion est faite automatiquement lorsqu'il faut remonter le programme
 
-void operations(int op);
-
-void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau programme, et on le convertit (hexa->int)
+void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau programme, et on le convertit (hexa->short)
 {
     FILE* fichier= fopen(fichierLM,"r");
     if (!fichier){
@@ -20,12 +21,12 @@ void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau 
     }
     int opcode, donnee, indice=0;
 
-    while( fscanf(fichier, "%2x %x", &opcode, &donnee)==2){
+    while( fscanf(fichier, "%x %x", &opcode, &donnee)==2){
         programme[indice][0]=opcode;
         programme[indice][1]=donnee;
         indice+=1;
         *nbLignes+=1;
-    } //%2x car 2 chiffres ecrit en hexa, et "==2" car la fonction renvoie le nombre d'éléments bien lus
+    } //%x car chiffres ecrit en hexa, et "==2" car la fonction renvoie le nombre d'éléments bien lus
     fclose(fichier);
 }
 
@@ -38,30 +39,32 @@ void afficheTableau(short T[TAILLE_PROGRAMME][2]){
     }
 }
 
+void operations();
 
-
-void testOverflow(){
+void testOverflow(){  //on fait beaucoup de fois ce test dans les switch donc on cree directement une fonction
     if (SP<=1){
 				printf("erreur ligne %d, la pile ne contient pas 2 elements", PC);
 				exit(EXIT_FAILURE);
 			}
 }
 
+
+
 void instructions(){
-    int commande=programme[PC-1][0];
-    int donnee=programme[PC-1][1];
-    printf("Ligne=%d, PC=%d, SP=%d, Commande=%d, Donnee=%d\n",PC, PC, SP, commande, donnee);
+    short commande=programme[PC-1][0];
+    short donnee=programme[PC-1][1];
+    printf("Ligne=%d, PC=%d, SP=%d, Commande=%hd, Donnee=%hd\n",PC, PC, SP, commande, donnee);
     switch(commande){  //on exprime toutes les differentes commandes possibles + les differentes operations
         case(0): //pop x
             if(SP<=0){
                 printf("Erreur, la pile est vide\n");
                 exit(EXIT_FAILURE);
             }
-            if(donnee<0 || donnee>TAILLE_MEMOIRE){
-                printf("Erreur d'indice\n");
+            if(donnee<0 || donnee>=TAILLE_MEMOIRE){
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            memoire[donnee]=pile[SP-1];
+            memoire[donnee]=memoire[SP-1];
             SP--;   
             break;
         case(1): //ipop
@@ -69,24 +72,24 @@ void instructions(){
                 printf("Erreur, la pile a moins d'1 élément\n");
                 exit(EXIT_FAILURE);
             }
-            int n_case1=pile[SP-1];
-            if(n_case1<0 || n_case1>TAILLE_MEMOIRE){
-                printf("erreur, n n'est pas une adresse valide\n");
+            int n_case1=memoire[SP-1];
+            if(n_case1<0 || n_case1>=TAILLE_MEMOIRE){
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            memoire[n_case1]=pile[SP-2];
+            memoire[n_case1]=memoire[SP-2];
             SP-=2;
             break;
         case(2): //push x
-            if(SP==TAILLE_PILE){
+            if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
             if (donnee>=TAILLE_MEMOIRE || donnee<0){
-                printf("l'adresse n'est pas valide\n");
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            pile[SP]=memoire[donnee];
+            memoire[SP]=memoire[donnee];
             SP+=1;
             break;
         case(3):  //ipush
@@ -94,19 +97,19 @@ void instructions(){
                 printf("Pile vide\n");
                 exit(EXIT_FAILURE);
             }
-            int n_case3=pile[SP-1];
+            int n_case3=memoire[SP-1];
             if (n_case3 < 0 || n_case3 >= TAILLE_MEMOIRE) {
-                printf("Erreur, l'adresse n est invalide\n");
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            pile[SP-1]=memoire[n_case3];
+            memoire[SP-1]=memoire[n_case3];
             break;
         case(4): //push# i
-            if(SP==TAILLE_PILE){
+            if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
-            pile[SP]=donnee;
+            memoire[SP]=donnee;
             SP+=1;
             break;
         case(5): //jmp adr
@@ -114,20 +117,20 @@ void instructions(){
             break;
         case(6): //jnz adr
             if(SP==0){
-                printf("erreur a la ligne %d, la pile est vide\n",PC);
+                printf("Erreur a la ligne %d, la pile est vide\n",PC);
                 exit(EXIT_FAILURE);
 				}
-            if(pile[SP-1]!=0){
+            if(memoire[SP-1]!=0){
 				  PC+=donnee;
 				}
 			 SP--;
             break;
         case(7): //call adr
-            if(SP==TAILLE_PILE){
+            if(SP==TAILLE_MEMOIRE){
                 printf("Plus d'espace de stockage\n");
                 exit(EXIT_FAILURE);
             }
-            pile[SP]=PC;
+            memoire[SP]=PC;
             SP++;
             PC+=donnee;
             break;
@@ -136,44 +139,44 @@ void instructions(){
                     printf("Erreur, pile vide lors du RET\n");
                     exit(EXIT_FAILURE);
             }
-            PC=pile[SP-1];
+            PC=memoire[SP-1];
             SP--;
             break;
         case(9): //read x
+            int k_case9;
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
-                printf("Erreur d'indice\n");
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            int k_case9;
-            printf("Entrez une valeur pour l'adresse %d\n", donnee);
-            scanf("%d", &k_case9); //petit entier
+            printf("Entrez une valeur pour l'adresse %hd\n", donnee);
+            scanf("%hd", &k_case9); //petit entier
             memoire[donnee]=k_case9;
             break;
         case(10): //write x
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
-                printf("Erreur d'indice\n");
+                printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            printf("%d\n",memoire[donnee]);
+            printf("%hd\n",memoire[donnee]);
             break;
         case(11): //on appelle operations() qui lui aussi est un switch
             operations(donnee);
             break;
         case(12): //rnd x
-            if(SP==TAILLE_PILE){
+            if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
             int rd_num = rand() % (donnee);
-            pile[SP]=rd_num;
+            memoire[SP]=rd_num;
             SP++;
             break;
         case(13): //dup
-            if(SP==TAILLE_PILE){
+            if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
-            pile[SP]=pile[SP-1];
+            memoire[SP]=memoire[SP-1];
             SP++;
             break;
         case(99): //halt
@@ -192,122 +195,122 @@ void operations(int op){
 		case(0): //egalité
 			testOverflow();
 			SP--;
-			if (pile[SP-1]==pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]==memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(1): //inegalité
 			testOverflow();
 			SP--;
-			if (pile[SP-1]!=pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]!=memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(2):
 			testOverflow();
 			SP--;
-			if (pile[SP-1]>=pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]>=memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(3):
 			testOverflow();
 			SP--;
-			if (pile[SP-1]<=pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]<=memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(4):
 			testOverflow();
 			SP--;
-			if (pile[SP-1]>pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]>memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(5):
 			testOverflow();
 			SP--;
-			if (pile[SP-1]<pile[SP]){
-				pile[SP-1]=1;
+			if (memoire[SP-1]<memoire[SP]){
+				memoire[SP-1]=1;
 			}
 			else{
-				pile[SP-1]=0;
+				memoire[SP-1]=0;
 			}
 			break;
 		case(6):
 			testOverflow();
 			SP--;
-			pile[SP-1]= pile[SP-1]| pile[SP];
+			memoire[SP-1]= memoire[SP-1]| memoire[SP];
 			break;
 		case(7):
 			testOverflow();
 			SP--;
-			pile[SP-1]= pile[SP-1]^pile[SP];
+			memoire[SP-1]= memoire[SP-1]^memoire[SP];
 			break;
 		case(8):
 			testOverflow();
 			SP--;
-			pile[SP-1]= pile[SP-1]&pile[SP];
+			memoire[SP-1]= memoire[SP-1]&memoire[SP];
 			break;
 		case(9):
 			if(SP==0){
-                printf("erreur a la ligne %d,la pile est vide\n",PC);
+                printf("erreur a la ligne %d,la memoire est vide\n",PC);
                 exit(EXIT_FAILURE);
 				}
-			pile[SP-1]= ~pile[SP-1];
+			memoire[SP-1]= ~memoire[SP-1];
 			break;
 		case(10):
 			testOverflow();
 			SP--;
-			pile[SP-1]+=pile[SP];
+			memoire[SP-1]+=memoire[SP];
 			break;
 		case(11):
 			testOverflow();
 			SP--;
-			pile[SP-1]-=pile[SP];
+			memoire[SP-1]-=memoire[SP];
 			break;
 		case(12):
 			testOverflow();
 			SP--;
-			pile[SP-1]*=pile[SP];
+			memoire[SP-1]*=memoire[SP];
 			break;
 		case(13):
 			testOverflow();
-			if (pile[SP-1]==0){
+			if (memoire[SP-1]==0){
 				printf("erreur, division par 0");
 				exit(EXIT_FAILURE);
 			}
 			SP--;
-			pile[SP-1]=pile[SP-1]/pile[SP];
+			memoire[SP-1]=memoire[SP-1]/memoire[SP];
 			break;
 		case(14):
 			testOverflow();
 			SP--;
-			pile[SP-1]=pile[SP-1]%pile[SP];
+			memoire[SP-1]=memoire[SP-1]%memoire[SP];
 			break;
 		case(15):
 			if (SP==0){
-				printf("erreur a la ligne %d,la pile est vide\n",PC);
+				printf("erreur a la ligne %d,la memoire est vide\n",PC);
 				exit(EXIT_FAILURE);
 			}
-			pile[SP-1]= -1*pile[SP-1];
+			memoire[SP-1]= -1*memoire[SP-1];
 			break;
-		default:
+		default: // au cas ou notre commande n'existe pas (normalement ca ne doit pas arriver car la partie 1 est codée à merveille)
             printf("aucune commande ne corrsepond a la valeur de la ligne %d", PC);
             exit(EXIT_FAILURE);
             break;
