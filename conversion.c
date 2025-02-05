@@ -20,6 +20,10 @@ void EcrireFichier(FILE * destination, int * num_ligne, char mot1[], char mot2[]
 
     // convertit le premier mot en instruction le deuxième mot en valeur
     printf("conversion de l'instruction %s et %s à la ligne %d\n", mot1, mot2, *num_ligne);
+    if (mot1[0] == '\0') {
+        printf("instruction vide à la ligne %d, on passe à la suivante\n", *num_ligne);
+        return;
+    }
 
     int opcode = ObtenirCodeOperation(mot1);
     // en cas de mauvais numéro d'opération entré
@@ -46,7 +50,7 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
     int n = sscanf(chaine, "%49[^:]:%49[^\n]", possible_etiquette, non_etiquette); 
     int nbmots = 0;
     if (n==1) {
-        nbmots = sscanf(possible_etiquette, " %49s %49s", mot1, mot2);
+        nbmots = sscanf(possible_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
     }
     if (n==2) {
         if (possible_etiquette[0]=='\0') {
@@ -56,7 +60,7 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
         }
         printf("étiquette :%s détectée à la ligne %d\n", possible_etiquette, *num_ligne);
         // on re divise le mot en étiquette vs non étiquette
-        nbmots = sscanf(non_etiquette, " %49s %49s", mot1, mot2);
+        nbmots = sscanf(non_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
     }
     if (n==0) {
         erreur->statut=1;
@@ -65,7 +69,7 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
     }
     if (ContientEspace(mot2)) {
         erreur->statut = 1;
-        strcpy(erreur->msg_erreur, "erreur de syntaxe : on ne peut pas avoir plus de 2 mots pour une instruction");
+        strcpy(erreur->msg_erreur, "erreur de syntaxe : on ne peut pas avoir un espace dans un mot");
         return -1;
         
     }
