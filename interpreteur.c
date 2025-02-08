@@ -16,16 +16,28 @@ void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau 
 {
     FILE* fichier= fopen(fichierLM,"r");
     if (!fichier){
-        printf("erreur, fichier non trouve\n");
+        printf("erreur, fichier non trouvé\n");
         exit(EXIT_FAILURE);
     }
     int opcode, donnee, indice=0;
+    char ligne[256];
 
-    while( fscanf(fichier, "%x %x", &opcode, &donnee)==2){
-        programme[indice][0]=opcode;
-        programme[indice][1]=donnee;
-        indice+=1;
-        *nbLignes+=1;
+    while (fgets(ligne, sizeof(ligne), fichier)) {
+        *nbLignes += 1;
+        if (ligne[0] == '\n' || ligne[0] == '\0') {
+            programme[indice][0] = 98; 
+            programme[indice][1] = 0;
+            indice++;
+            printf("instruction vide\n");
+            continue;  // skip lignes vides
+        }
+        
+        if (sscanf(ligne, "%x %x", &opcode, &donnee) == 2) {
+            programme[indice][0] = opcode;
+            programme[indice][1] = donnee;
+            indice += 1;
+            printf("opcode=%d, donnee=%d\n", opcode, donnee);
+        }
     } //%x car chiffres ecrit en hexa, et "==2" car la fonction renvoie le nombre d'éléments bien lus
     fclose(fichier);
 }
@@ -43,7 +55,7 @@ void operations(int op);
 
 void testOverflow(){  //on fait beaucoup de fois ce test dans les switch donc on cree directement une fonction
     if (SP<=1){
-				printf("erreur ligne %d, la pile ne contient pas 2 elements", PC);
+				printf("erreur ligne %d, la pile ne contient pas 2 elements\n", PC);
 				exit(EXIT_FAILURE);
 			}
 }
@@ -115,7 +127,7 @@ void instructions(){
             SP+=1;
             break;
         case(5): //jmp adr
-            PC+=donnee -1;
+            PC+=donnee - 1;
             break;
         case(6): //jnz adr
             if(SP==0){
@@ -180,12 +192,14 @@ void instructions(){
             memoire[SP]=memoire[SP-1];
             SP++;
             break;
+        case(98): //instruction vide
+            break;
         case(99): //halt
-            printf("fin du programme!");
+            printf("fin du programme!\n");
             exit(EXIT_SUCCESS);
             break;
         default:
-            printf("aucune commande ne corrsepond a la valeur de la ligne %d", PC);
+            printf("aucune commande ne corrsepond a la valeur de la ligne %d\n", PC);
             exit(EXIT_FAILURE);
             break;
     }

@@ -11,7 +11,7 @@
 #define MAX_LONGUEUR_ETIQUETTE 30
 #define MAX_LONGUEUR_INSTRUCTION 50
 
-// constantes pour le simulateur de ma machine à pile
+// constantes pour le simulateur de ma achine à pile
 //nous avons choisi de réserver 1000 adresses pour la pile et 4000 adresses pour le reste
 
 #define TAILLE_TOTALE 5000
