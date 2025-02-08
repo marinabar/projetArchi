@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     }
     else{
         printf("Erreur lors de la conversion du fichier code machine en hexadécimal\n");
+        printf("%s\n", erreur.msg_erreur);
         return 1;
     }
     Simulateur();

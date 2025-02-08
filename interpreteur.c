@@ -39,7 +39,7 @@ void afficheTableau(short T[TAILLE_PROGRAMME][2]){
     }
 }
 
-void operations();
+void operations(int op);
 
 void testOverflow(){  //on fait beaucoup de fois ce test dans les switch donc on cree directement une fonction
     if (SP<=1){
@@ -53,6 +53,8 @@ void testOverflow(){  //on fait beaucoup de fois ce test dans les switch donc on
 void instructions(){
     short commande=programme[PC-1][0];
     short donnee=programme[PC-1][1];
+    short k_case9;
+    
     printf("Ligne=%d, PC=%d, SP=%d, Commande=%hd, Donnee=%hd\n",PC, PC, SP, commande, donnee);
     switch(commande){  //on exprime toutes les differentes commandes possibles + les differentes operations
         case(0): //pop x
@@ -113,7 +115,7 @@ void instructions(){
             SP+=1;
             break;
         case(5): //jmp adr
-            PC+=donnee;
+            PC+=donnee -1;
             break;
         case(6): //jnz adr
             if(SP==0){
@@ -143,7 +145,6 @@ void instructions(){
             SP--;
             break;
         case(9): //read x
-            int k_case9;
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
                 printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);

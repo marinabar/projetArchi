@@ -49,8 +49,11 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
     // sépare la ligne en 50 caractères max avant et 50 max après ':' non_etiquette est vide s'il n'y a pas d'étiquette dans la ligne
     int n = sscanf(chaine, "%49[^:]:%49[^\n]", possible_etiquette, non_etiquette); 
     int nbmots = 0;
-    if (n==1) {
+    if (n==1 && strchr(chaine, ':')==NULL) {
         nbmots = sscanf(possible_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
+        if (mot1[strlen(mot1) - 1] == '\n') {
+            mot1[strlen(mot1) - 1] = '\0';
+        }
     }
     if (n==2) {
         if (possible_etiquette[0]=='\0') {
@@ -114,6 +117,10 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
 
     // repère les étiquettes du tableau
     RemplirTableauEtiq(source, tableau_etiquettes, &nb_etiquettes, erreur);
+    if (erreur->statut) {
+        printf("Erreur de lecture des étiquettes\n");
+        return 1;
+    }
 
     // réinitialise le curseur de lecture du fichier
     rewind(source);
@@ -150,9 +157,9 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
     fclose(destination);
 
     if (erreur->statut) {
-        printf("%s\n", erreur->msg_erreur);
         return 1;
     }
+    printf("mot1 : %s, mot2 : %s, nb_mots : %d\n", mot1, mot2, nb_mots);
     // nb_mots a le nombre de mots de la dernière ligne
     if (nb_mots == 2 && (strcmp("halt", mot2) != 0)) {
         strcpy(erreur->msg_erreur, "le fichier ne se termine pas par halt");

@@ -77,12 +77,13 @@ void RemplirTableauEtiq(FILE * source, Etiquette tableau_etiquettes[], int *nb_e
         if (ligne[0]=='\n' || ligne[0]=='\0') {
             continue;
         }
+        // réinitialise les variables
         possible_etiquette[0]='\0';
         autre[0]='\0';
         // sépare la ligne en string avant et après le ':' si le ':' est présent
         // 49 correspond à la longueur max de l'instruction
         int n = sscanf(ligne, "%49[^:]:%49[^\n]", possible_etiquette, autre);
-        if (n==2) {
+        if (n==2 || (n==1 && strchr(ligne, ':')!=NULL)) {
             // vérifie si l'étiquette est valide
             EtiquetteNonValide(possible_etiquette, erreur);
             if (erreur->statut==1) {
