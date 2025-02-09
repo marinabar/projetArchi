@@ -151,17 +151,35 @@ void instructions(){
             PC=memoire[SP-1];
             SP--;
             break;
-        case(9): //read x
+        case 9: // read x
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
                 printf("Erreur d'indice, l'adresse n'est pas valide\n");
                 exit(EXIT_FAILURE);
             }
-            printf("Entrez une valeur pour l'adresse %hd\n", donnee);
-            if (scanf("%hd", &k_case9) != 1) {  // Vérifie qu'on a bien lu un short
-		printf("Erreur de lecture, entrez un nombre valide\n");
-		exit(EXIT_FAILURE);
-	    }
-            memoire[donnee]=k_case9;
+            char input_buffer[256];
+
+            printf("Entrez une valeur pour l'adresse %hd: ", donnee);
+            if (fgets(input_buffer, sizeof(input_buffer), stdin) == NULL) {
+                printf("Erreur de lecture\n");
+                exit(EXIT_FAILURE);
+            }
+
+    
+            if (sscanf(input_buffer, "%hd", &k_case9) == 1) { // on a bien un short, on le stocke directement
+                memoire[donnee] = k_case9;
+                break;
+            } 
+            // on verifie si cest un seul carac
+            else if (strlen(input_buffer) == 2 && input_buffer[1] == '\n') {
+                //valide
+                memoire[donnee] = (short)input_buffer[0];
+                break;
+            } 
+            // Invalide
+            else {
+                printf("Erreur: entrez un nombre ou un seul caractère.\n");
+                exit(EXIT_FAILURE);
+            }
             break;
         case(10): //write x
             if (donnee < 0 || donnee >= TAILLE_MEMOIRE) {
@@ -285,7 +303,7 @@ void operations(int op){
                 printf("erreur a la ligne %d,la memoire est vide\n",PC);
                 exit(EXIT_FAILURE);
 				}
-			memoire[SP-1]= ~memoire[SP-1];
+			memoire[SP-1]=~memoire[SP-1];
 			break;
 		case(10):
 			testOverflow();
