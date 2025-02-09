@@ -20,12 +20,6 @@ void EcrireFichier(FILE * destination, int * num_ligne, char mot1[], char mot2[]
 
     // convertit le premier mot en instruction le deuxième mot en valeur
     printf("conversion de l'instruction %s et %s à la ligne %d\n", mot1, mot2, *num_ligne);
-    if (mot1[0] == '\n') {
-        // on rajoute un saut de ligne
-        printf("saut de ligne détecté à la ligne %d\n", *num_ligne);
-        fprintf(destination, "\n");
-        return;
-    }
     if (mot1[0] == '\0') {
         printf("instruction vide à la ligne %d, on passe à la suivante\n", *num_ligne);
         return;
@@ -55,20 +49,10 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
     // sépare la ligne en 50 caractères max avant et 50 max après ':' non_etiquette est vide s'il n'y a pas d'étiquette dans la ligne
     int n = sscanf(chaine, "%49[^:]:%49[^\n]", possible_etiquette, non_etiquette); 
     int nbmots = 0;
-    if (n==1) {
-        // si il n'y a pas d'étiquette
-        if (strchr(chaine, ':')==NULL) {
-            nbmots = sscanf(possible_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
-            if (mot1[strlen(mot1) - 1] == '\n') {
-                mot1[strlen(mot1) - 1] = '\0';
-            }
-        }
-        else {
-            // ligne ne contenant que l'étiquette
-            printf("la ligne %d ne contient que l'étiquette %s\n", *num_ligne, possible_etiquette);
-            nbmots = 1;
-            mot1[0] = '\n';
-            mot1[1] = '\0';
+    if (n==1 && strchr(chaine, ':')==NULL) {
+        nbmots = sscanf(possible_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
+        if (mot1[strlen(mot1) - 1] == '\n') {
+            mot1[strlen(mot1) - 1] = '\0';
         }
     }
     if (n==2) {
@@ -77,7 +61,6 @@ int SeparerLigne(const int * num_ligne, char chaine[], char * possible_etiquette
             strcpy(erreur->msg_erreur, "erreur de syntaxe : étiquette vide");
             return -1;
         }
-        printf("étiquette :%s détectée à la ligne %d\n", possible_etiquette, *num_ligne);
         // on re divise le mot en étiquette vs non étiquette
         nbmots = sscanf(non_etiquette, " %49[^ ] %49[^\n]", mot1, mot2);
     }
@@ -146,6 +129,8 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
         if (ligne[0] == '\n' || ligne[0] == '\0') {
             continue;
         }
+
+        num_ligne++;
         // il faut réinitialiser les variables à chaque ligne
         possible_etiquette[0] = '\0';
         non_etiquette[0] = '\0';
@@ -166,8 +151,6 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
             printf("Erreur d'écriture du fichier\n");
             break;
         }
-
-        num_ligne++;
     }
     fclose(source);
     fclose(destination);
@@ -175,7 +158,6 @@ int Conversion(int argc, char *argv[], Erreur *erreur) {
     if (erreur->statut) {
         return 1;
     }
-    printf("mot1 : %s, mot2 : %s, nb_mots : %d\n", mot1, mot2, nb_mots);
     // nb_mots a le nombre de mots de la dernière ligne
     if (nb_mots == 2 && (strcmp("halt", mot2) != 0)) {
         strcpy(erreur->msg_erreur, "le fichier ne se termine pas par halt");

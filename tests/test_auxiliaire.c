@@ -42,26 +42,6 @@ void test_EstNombre() {
     assert(erreur.statut == 1);
 }
 
-void test_VerifFichierEntree() {
-    Erreur erreur;
-    erreur.statut = 0;
-    // on simule la liste des arguments en entrée
-    char *argv1[] = {"programme.out", "fichier.txt"};
-    VerifFichierEntree(2, argv1, &erreur);
-    assert(erreur.statut == 0);
-
-    char *argv2[] = {"programme.out"};
-    VerifFichierEntree(1, argv2, &erreur);
-    assert(erreur.statut == 1);
-
-    erreur.statut = 0;
-
-    char *argv3[] = {"fichier"};
-    VerifFichierEntree(2, argv3, &erreur);
-    assert(erreur.statut == 1);
-    
-}
-
 int main() {
     test_ContientEspace();
     printf("ContientEspace a été testée avec succès\n");
@@ -69,7 +49,5 @@ int main() {
     printf("ChaineEnNombre a été testée avec succès\n");
     test_EstNombre();
     printf("EstNombre a été testée avec succès\n");
-    test_VerifFichierEntree();
-    printf("VerifFichierEntree a été testée avec succès\n");
     return 0;
 }

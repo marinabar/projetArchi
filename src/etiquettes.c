@@ -12,7 +12,6 @@ void AjoutEtiquette(Etiquette tableau_etiquettes[], char nom_etiquette[], int * 
     strcpy(tableau_etiquettes[*nb_etiquettes].nom, nom_etiquette); // copie l'étiquette dans le tableau en dernière position
     tableau_etiquettes[*nb_etiquettes].adr = *adresse;
     (*nb_etiquettes)++;
-    printf("étiquette %s numéro %d ajoutée avec succès au tableau\n", nom_etiquette, *nb_etiquettes);
     return;
 }
 
@@ -77,24 +76,30 @@ void RemplirTableauEtiq(FILE * source, Etiquette tableau_etiquettes[], int *nb_e
         if (ligne[0]=='\n' || ligne[0]=='\0') {
             continue;
         }
+        num_ligne++;
         // réinitialise les variables
         possible_etiquette[0]='\0';
         autre[0]='\0';
         // sépare la ligne en string avant et après le ':' si le ':' est présent
         // 49 correspond à la longueur max de l'instruction
         int n = sscanf(ligne, "%49[^:]:%49[^\n]", possible_etiquette, autre);
-        if (n==2 || (n==1 && strchr(ligne, ':')!=NULL)) {
+        if (n==2) {
             // vérifie si l'étiquette est valide
             EtiquetteNonValide(possible_etiquette, erreur);
+
             if (erreur->statut==1) {
                 sprintf(erreur->msg_erreur, "erreur de syntaxe pour l'étiquette à la ligne %d", num_ligne);
                 return;
             }
             // ajoute l'étiquette au tableau des étiquettes, l'adresse est l'adresse relative du fichier d'instructions
-            unsigned int temp_adresse = (unsigned int)num_ligne;
+            unsigned int temp_adresse = num_ligne - 1;
             AjoutEtiquette(tableau_etiquettes, possible_etiquette, nb_etiquettes, &temp_adresse, erreur);
-        }  
-        num_ligne++;
+        }
+        if (n==1 && strchr(ligne, ':')!=NULL) {
+            erreur->statut = 1;
+            sprintf(erreur->msg_erreur, "erreur de syntaxe : ligne %d avec étiquette sans instructions", num_ligne);
+            return;
+        }
     }
     return;
 }

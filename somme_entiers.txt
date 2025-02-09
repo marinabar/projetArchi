@@ -1,0 +1,11 @@
+read 1000
+push 1000
+push# 1
+op 10
+push 1000
+op 12
+push# 2
+op 13
+pop 1000
+write 1000
+halt

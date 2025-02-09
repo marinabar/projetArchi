@@ -23,12 +23,7 @@ void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau 
     char ligne[256];
 
     while (fgets(ligne, sizeof(ligne), fichier)) {
-        *nbLignes += 1;
         if (ligne[0] == '\n' || ligne[0] == '\0') {
-            programme[indice][0] = 98; 
-            programme[indice][1] = 0;
-            indice++;
-            printf("instruction vide\n");
             continue;  // skip lignes vides
         }
         
@@ -36,7 +31,7 @@ void remplirTableau(char* fichierLM) //on récupère le fichier dans le tableau 
             programme[indice][0] = opcode;
             programme[indice][1] = donnee;
             indice += 1;
-            printf("opcode=%d, donnee=%d\n", opcode, donnee);
+            *nbLignes += 1;
         }
     } //%x car chiffres ecrit en hexa, et "==2" car la fonction renvoie le nombre d'éléments bien lus
     fclose(fichier);
@@ -127,7 +122,7 @@ void instructions(){
             SP+=1;
             break;
         case(5): //jmp adr
-            PC+=donnee - 1;
+            PC+=donnee;
             break;
         case(6): //jnz adr
             if(SP==0){

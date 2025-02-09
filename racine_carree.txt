@@ -1,0 +1,23 @@
+read 1001
+push# 100
+pop 1000
+read 1002
+loop:    push 1002
+         push# 0
+         op 0
+         jnz fin
+         push 1002
+         push# 1
+         op 11
+         pop 1002
+         push 1001
+         push 1000
+         op 13
+         push 1000
+         op 10
+         push# 2
+         op 13
+         pop 1000
+         jmp loop
+fin:     write 1000
+         halt

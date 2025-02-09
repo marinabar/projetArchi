@@ -5,7 +5,7 @@ int main(int argc, char *argv[]) {
     erreur.statut = 0;
     Conversion(argc, argv, &erreur);
     if (erreur.statut ==0){
-        printf("Conversion réussie\n");
+        printf("Conversion du fichier d'instructions réussie\n");
     }
     else{
         printf("Erreur lors de la conversion du fichier code machine en hexadécimal\n");
