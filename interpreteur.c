@@ -157,7 +157,10 @@ void instructions(){
                 exit(EXIT_FAILURE);
             }
             printf("Entrez une valeur pour l'adresse %hd\n", donnee);
-            scanf("%hd", &k_case9); //petit entier
+            if (scanf("%hd", &k_case9) != 1) {  // Vérifie qu'on a bien lu un short
+		printf("Erreur de lecture, entrez un nombre valide\n");
+		exit(EXIT_FAILURE);
+	    }
             memoire[donnee]=k_case9;
             break;
         case(10): //write x
