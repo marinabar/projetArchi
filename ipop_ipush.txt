@@ -1,0 +1,10 @@
+start: push# 42
+    push# 1000
+       
+       ipop
+       write 1000
+       push# 1000
+       ipush
+       pop 1001
+       write 1001
+       halt
