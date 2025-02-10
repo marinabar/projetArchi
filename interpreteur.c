@@ -61,6 +61,7 @@ void instructions(){
     short commande=programme[PC-1][0];
     short donnee=programme[PC-1][1];
     short k_case9;
+    short rd_num;
     
     printf("Ligne=%d, PC=%d, SP=%d, Commande=%hd, Donnee=%hd\n",PC, PC, SP, commande, donnee);
     switch(commande){  //on exprime toutes les differentes commandes possibles + les differentes operations
@@ -192,21 +193,23 @@ void instructions(){
             operations(donnee);
             break;
         case(12): //rnd x
-	    short rd_num;
+
+
+	        srand(time(NULL));
             if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
-	    if(donnee==0){
-		    rd_num=0;
-	    }
-	    else if(donnee<0){
-		donnee = -donnee;
-		rd_num = - rand() % (donnee);
-	    }
-	    else{
-		rd_num = rand() % (donnee);
-	    }
+            if(donnee==1){
+                rd_num=0;
+            }
+            else if(donnee<1){
+                printf("entrez une valeur strictement positive\n");
+                exit(EXIT_FAILURE);
+            }
+            else{
+                rd_num = rand() % (donnee);
+            }
             memoire[SP]=rd_num;
             SP++;
             break;
@@ -379,3 +382,4 @@ int Simulateur(){
     printf("le programme s'est arrete a l'instruction %d\n",PC);
     return 0;
 }
+
