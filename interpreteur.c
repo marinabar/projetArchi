@@ -192,11 +192,21 @@ void instructions(){
             operations(donnee);
             break;
         case(12): //rnd x
+	    short rd_num;
             if(SP==TAILLE_MEMOIRE){
                 printf("Plus assez de place pour stocker l'élément\n");
                 exit(EXIT_FAILURE);
             }
-            int rd_num = rand() % (donnee);
+	    if(donnee==0){
+		    rd_num=0;
+	    }
+	    else if(donnee<0){
+		donnee = -donnee;
+		rd_num = - rand() % (donnee);
+	    }
+	    else{
+		rd_num = rand() % (donnee);
+	    }
             memoire[SP]=rd_num;
             SP++;
             break;
@@ -331,6 +341,10 @@ void operations(int op){
 			break;
 		case(14):
 			testOverflow();
+			if (memoire[SP-1]==0){
+				printf("erreur, division par 0");
+				exit(EXIT_FAILURE);
+			}
 			SP--;
 			memoire[SP-1]=memoire[SP-1]%memoire[SP];
 			break;
